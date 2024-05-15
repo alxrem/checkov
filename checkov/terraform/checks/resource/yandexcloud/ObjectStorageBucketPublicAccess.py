@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from checkov.common.util.type_forcers import force_list, force_dict
 from checkov.terraform.checks.resource.base_resource_check import BaseResourceCheck
 from checkov.common.models.enums import CheckResult, CheckCategories
 
@@ -25,7 +26,7 @@ class ObjectStorageBucketPublicAccess(BaseResourceCheck):
             if acl_block in [["public-read"], ["public-read-write"]]:
                 return CheckResult.FAILED
         if "grant" in conf.keys():
-            grant_uri_block = conf["grant"][0]["uri"]
+            grant_uri_block = force_dict(force_list(conf["grant"])[0]).get("uri")
             if grant_uri_block == ["http://acs.amazonaws.com/groups/global/AllUsers"]:
                 return CheckResult.FAILED
         return CheckResult.PASSED
